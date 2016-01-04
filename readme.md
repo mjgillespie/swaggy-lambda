@@ -51,22 +51,22 @@ node app.js
 
 ## What you get for 'free'
 * The main thing is that the tedious process of creating the API Gateway and Lambda functions is totally automated.
-** Resources are created for each resource in the swagger.json
-** A `swagger.json` resource is added to host the swagger file.
-** A `docs` resource is created to run swagger-ui on the endpoint.
-** Each method in the swagger path is added to the resource.
-** Parameters are mapped to the event object passed to the lambda function. The following parameters are supported:
-*** Query Params -> event.params map.
-*** Path Params -> event.params map.
-*** Header Params -> event.params map.
-*** Body parameter -> event.body map
-** Parameters are validated against the swagger parameter type, format, required, and the other validations configurable on the parameter such as maxLength, max
-*** Body parameters are also validated.
-** Return parameters are mapped back
-*** Status codes are mapped from the success/error object return by the lambda function.
-*** 200 for GET & PUT, 201 for POST, 204 for DELETE
-*** 422 for invalid parameters
-*** 404 for nonfound values.
+  * Resources are created for each resource in the swagger.json
+  * A `swagger.json` resource is added to host the swagger file.
+  * A `docs` resource is created to run swagger-ui on the endpoint.
+  * Each method in the swagger path is added to the resource.
+  * Parameters are mapped to the event object passed to the lambda function. The following parameters are supported:
+    * Query Params -> event.params map.
+    * Path Params -> event.params map.
+    * Header Params -> event.params map.
+    * Body parameter -> event.body map
+  * Parameters are validated against the swagger parameter type, format, required, and the other validations configurable on the parameter such as maxLength, max
+    * Body parameters are also validated.
+    * Return parameters are mapped back
+    * Status codes are mapped from the success/error object return by the lambda function.
+    * 200 for GET & PUT, 201 for POST, 204 for DELETE
+    * 422 for invalid parameters
+    * 404 for nonfound values.
 * Lambda function is create, uploaded, and deployed.
 * REST function can be versioned and deployed to a different stage.
 * Stage variables can be passed in to accomodate differences in behavior per stage, such as a DB connection or table name.
@@ -76,11 +76,11 @@ node app.js
 ### Really, how does it work?
 Well, all the endpoints get serviced by a single broker Lambda function. It then dynamically loads a module based on which resource is being requested. Each resource can have a number of methods associated with it, right now they are:
 * list: A GET that will return a list of resources. Success returns 200 HTTP code.
-** get: A GET that returns a single resource. Success returns 200 HTTP code.
-** post: A POST method that creates a new record. Success returns 201 HTTP code.
-** put: A PUT method that updates an existing resource. Success returns 200 HTTP code.
-** delete: A DELETE method that deletes an existing resource. Success returns 204 HTTP code.
-** validate: A method that validates the request above & beyond the built in swagger validations.
+  * get: A GET that returns a single resource. Success returns 200 HTTP code.
+  * post: A POST method that creates a new record. Success returns 201 HTTP code.
+  * put: A PUT method that updates an existing resource. Success returns 200 HTTP code.
+  * delete: A DELETE method that deletes an existing resource. Success returns 204 HTTP code.
+  * validate: A method that validates the request above & beyond the built in swagger validations.
 
 
 
