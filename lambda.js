@@ -38,7 +38,6 @@ String.prototype.replaceAll = function(find, replace) {
 module.exports = {
     updateLambda: function(restApiName, label, bucket, skipUpload) {
 
-        console.log('updateLambda', restApiName, label, bucket, skipUpload);
         var functionName = restApiName + '-invoke';
 
         var zip3 = new Zip();
@@ -88,8 +87,7 @@ module.exports = {
 
         var data = fs.readFileSync('./' + functionName + '.zip');
 
-        console.log('bucket', bucket, skipUpload);
-
+        
         if (skipUpload) {
             return Q();
         } else {
@@ -98,7 +96,7 @@ module.exports = {
                 Key: 'swaggy-lambda/' + restApiName + '/' + label + '/' + functionName + '.zip',
                 Body: data
             }).then(function(result) {
-                console.log('S3 ZIP Upload', result);
+                console.log('S3 Lambda ZIP Upload Complete:', result);
                 return result;
             }).catch(function(err) {
                 console.log('S3 ZIP Upload ERROR. bucket:' + bucket, err);
@@ -125,7 +123,7 @@ module.exports = {
             }
             return promise;
         }).catch(function(err) {
-            console.log("should be ok, no existing permissions")
+            console.log("No existing permissions.")
         });
 
     },
@@ -199,8 +197,7 @@ module.exports = {
             Timeout: 10
         };
 
-        console.log('lambda createFunction', params);
-
+        
         return lambda.createFunction(params).promise();
     },
     updateFunction: function(arn, restApiName, label, bucket, role) {
@@ -215,7 +212,6 @@ module.exports = {
         };
 
         return lambda.updateFunctionCode(params).then(function(result) {
-            console.log('Lambda Updated', result);
             return result;
         }); // successful response
     },
@@ -242,8 +238,7 @@ module.exports = {
         var swaggerDoc = fs.readFileSync('swagger.json', 'utf8');
         var template = Handlebars.compile(swaggerDoc);
 
-        console.log('deploySwaggerFile', bucket, remotepath, apiUrl, version, stage);
-
+        
 
         var api = apiUrl;
         if (api.startsWith('https://')) {
@@ -267,8 +262,7 @@ module.exports = {
         }).promise();
     },
     deployIndexHtml: function(bucket, remotepath, apiUrl, version, stage) {
-        console.log('deployIndexHtml', bucket);
-
+        
         var indexHtml = fs.readFileSync(__dirname + '/swagger-ui/index.html', 'utf8');
 
         var template = Handlebars.compile(indexHtml);
@@ -280,7 +274,7 @@ module.exports = {
             "apiUrl": apiUrl
         };
 
-        console.log('data', data);
+      
 
         var result = template(data);
 
@@ -300,7 +294,6 @@ module.exports = {
         //
         var me = this;
 
-        console.log('uploadFolder', bucket, remotepath, localpath, apiUrl, version);
         var files = me.recursiveReadDir(localpath, me)
 
         var promises = [];
@@ -339,17 +332,15 @@ module.exports = {
             Description: 'Version created ' + label
         };
         return lambda.publishVersion(params).then(function(results) {
-            console.log('publishVersion', results);
+            console.log('Publish Lambda Version ' + label);
             var aliasParams = {
                 FunctionName: arn,
                 FunctionVersion: results.Version,
                 Name: label.replaceAll('.', '-'),
                 Description: 'Version Alias for ' + label
             };
-            console.log('createAlias', aliasParams);
-
+            
             return lambda.createAlias(aliasParams).then(function(aliasResult) {
-                console.log('createAliasResult', aliasResult);
                 return aliasResult;
             });
         });
@@ -361,67 +352,77 @@ module.exports = {
         if (version != null) {
             arn = arn + ':' + version.replaceAll('.', '-');
         }
-        console.log('arn', arn);
-
+      
         return lambda.getPolicy({
             FunctionName: arn
         }).then(function(getPolicyResult) {
-            console.log('getPolicyResult', getPolicyResult.Policy);
+          
 
         }).catch(function(err) {
-            console.log("should be ok, no existing permissions")
+          //  console.log("should be ok, no existing permissions", err);
         });
 
 
     },
     createRole: function(roleName) {
-        var assumeRolePolicyDocument = {
-            "Version": "2012-10-17",
-            "Statement": [{
-                "Action": "sts:AssumeRole",
-                "Effect": "Allow",
-                "Principal": {
-                    "Service": "lambda.amazonaws.com"
-                }
-            }]
-        };
 
-        var params = {
-            AssumeRolePolicyDocument: JSON.stringify(assumeRolePolicyDocument, null, '\t'),
+        // First, check to see if the role exists
+
+        return iam.getRole({
             RoleName: roleName
-        };
-        
-        return iam.createRole(params).then(function(roleResult) {
+        }).then(function(roleInfo) {
             
+            return roleInfo.Role.Arn;
+        }).catch(function(err) {
 
-            // Attach a basic execution policy to the role  
-            policyDocument = {
+            var assumeRolePolicyDocument = {
                 "Version": "2012-10-17",
                 "Statement": [{
-                    "Action": [
-                        "logs:CreateLogGroup",
-                        "logs:CreateLogStream",
-                        "logs:PutLogEvents"
-                    ],
-                    "Resource": "arn:aws:logs:*:*:*",
-                    "Effect": "Allow"
+                    "Action": "sts:AssumeRole",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "lambda.amazonaws.com"
+                    }
                 }]
             };
 
-            var rolePolicyParams = {
-                RoleName: roleName,
-                PolicyName: roleName + '-Basic-Execution-' + Math.floor(Math.random() * 100000000),
-                PolicyDocument: JSON.stringify(policyDocument, null, '\t')
+            var params = {
+                AssumeRolePolicyDocument: JSON.stringify(assumeRolePolicyDocument, null, '\t'),
+                RoleName: roleName
             };
 
-            return iam.putRolePolicy(rolePolicyParams).then(function(rolePolicyResult) {
-                console.log('Created Basic Lambda Execution Role: ', roleResult.Role.Arn);
+            return iam.createRole(params).then(function(roleResult) {
 
-                return roleResult.Role.Arn;
-            }).catch(function(err) {
-                console.log('ERROR attaching policy', err);
+
+                // Attach a basic execution policy to the role  
+                policyDocument = {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents"
+                        ],
+                        "Resource": "arn:aws:logs:*:*:*",
+                        "Effect": "Allow"
+                    }]
+                };
+
+                var rolePolicyParams = {
+                    RoleName: roleName,
+                    PolicyName: roleName + '-Basic-Execution-' + Math.floor(Math.random() * 100000000),
+                    PolicyDocument: JSON.stringify(policyDocument, null, '\t')
+                };
+
+                return iam.putRolePolicy(rolePolicyParams).then(function(rolePolicyResult) {
+                    console.log('Created Basic Lambda Execution Role: ', roleResult.Role.Arn);
+
+                    return roleResult.Role.Arn;
+                }).catch(function(err) {
+                    console.log('ERROR attaching policy', err);
+                });
             });
         });
-
     }
+
 }

@@ -50,7 +50,7 @@ module.exports = {
                             return "yes!";
                         })
                         .catch(function(err) {
-                            console.log('function create errored out', err);
+                            console.log('buildLambda ERROR: ', err);
                         });
                 }
             })
@@ -89,7 +89,6 @@ module.exports = {
                 }
 
                 return apiGateway.deployStage(conf.restApiId, stage, version, conf.stages[stage].variables).then(function(result) {
-                    console.log('result', result);
                     return result;
                 })
             })
@@ -98,8 +97,7 @@ module.exports = {
 
 
                 if (conf.stages[stage].apiKey == null || conf.stages[stage].apiKey == '') {
-                    console.log('Create API Key');
-
+                    
                     var createApiKeyParams = {
                         description: 'API key for ' + conf.name + ' - ' + stage,
                         enabled: true,
@@ -114,11 +112,11 @@ module.exports = {
                         conf.stages[stage].apiKey = result.id;
                         console.log('New API Key:' + conf.stages[stage].apiKey);
 
-                        return result;
+                        return apiUrl + '/' + stage + '/docs?apiKey=' + conf.stages[stage].apiKey;
                     });
                 } else {
-                    console.log('Existing API Key:' + conf.stages[stage].apiKey);
-                    return "";
+                   
+                    return apiUrl + '/' + stage + '/docs?apiKey=' + conf.stages[stage].apiKey;;
                 }
             })
     },
@@ -185,7 +183,6 @@ module.exports = {
             })
             .then(function(result) {
 
-                console.log('Calling apiGateway.deploy', conf.restApiId, stage, version);
                 return apiGateway.createDeployment(conf.restApiId, stage, version);
             })
             .then(function(result) {
@@ -252,9 +249,6 @@ module.exports = {
             // Get two properties from the user: email, password
             //
             promise = Q.nfcall(prompt.get, schema).then(function(result) {
-                console.log('Command-line input received:');
-                console.log('  name: ' + result.apiName);
-                console.log('  apiDescription ' + result.apiDescription);
                 packageJson['swagger-lamba'].name = result.apiName;
                 packageJson['swagger-lamba'].description = result.apiDescription;
                 packageJson['swagger-lamba'].bucket = result.bucket;
@@ -329,16 +323,13 @@ module.exports = {
 
             var resources = util.parseSwaggerFile('swagger.json').resources;
 
-            console.log('resources', JSON.stringify(resources, null, '\t'));
-
+           
             for (var resource in resources) {
 
                 try {
                     stats = fs.statSync('api/' + resource + '.js');
-                    console.log("File exists.");
-                } catch (e) {
-                    console.log("File does not exist.");
-
+                   } catch (e) {
+                    
 
 
                     /* try {

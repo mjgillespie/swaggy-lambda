@@ -5,15 +5,24 @@ Swaggy-lambda is a command line utility that will help you simply make a JSON RE
 * npm & node installed
 * An AWS account
 * Run the AWS CLI & get default credentials, region, etc configured.
+* Optional: install mocha globally: `npm install -g mocha`
 
 ## Getting up and running
 * Download the source and run `npm link` to install a symbolic link to 'swaggy-lambda'. Once this stabilizes a little, I will publish the package so you can simple to the `npm install -g`.
-* Create a new blank project.
-* Create your swagger.json file. 
-* run `swaggy-lambda init` on the command line. This will do the following things:
+* Create a new blank project, run `npm init`
+* Bootstrap your project with some sample swagger files and nodejs api resources. `swaggy-lambda bootstrap`
+* This will create a sample project and do the following things:
+  * Copy a sample swagger file to your local project
   * Copy any dependencies into your package.json
   * Initialize your swaggy-lambda configuration
-  * Create a template for your app.js and lambda endpoints.
+  * Create a basic lambda execution role if one is not supplied.
+  * Create an app.js for running locally in express and and sample api resources. These end up being what gets executed during the lambda function.
+* Build the project: `swaggy-lambda build`
+  * Note, the build url is output at the end of the build.
+* Run integration tests: `mocha test/sample-test.js`
+* Create a version `swaggy-lambda create-version 0.0.1`
+* Deploy the version to a dev stage: `swaggy-lambda deploy-version 0.0.1 dev`
+* View the swagger UI by pasting the link output of the bottom the deploy version task.
 
 ## How does it work?
 The swaggy lambda uses a configuration by convention approach to AWS lambda functions that service the REST based service.

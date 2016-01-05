@@ -24,7 +24,7 @@ program.version('0.1.0')
 
 
 program
-    .command('init-sample')
+    .command('bootstrap')
     .action(function() {
 
         // If the user wants the sample project, first copy the swagger.sample.json to swagger.json
@@ -111,7 +111,7 @@ program
         console.log('deploy-version', version, stage);
 
         build.deployStage(conf, stage, version).then(function(result) {
-                console.log('result', result);
+                console.log('Stage Url:', result);
                 fs.writeFileSync('package.json', JSON.stringify(packageJson, null, '\t', 'utf8'));
             })
             /*
@@ -133,6 +133,7 @@ program
         build.run(conf, 'build', 'latest', skipUpload)
             .done(function(result) {
                 fs.writeFileSync('package.json', JSON.stringify(packageJson, null, '\t', 'utf8'));
+                console.log('test url: ' + result)
                 console.log('all done!');
             });;
 

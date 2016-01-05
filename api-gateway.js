@@ -211,7 +211,7 @@ module.exports = {
                         });
 
                 }).then(function() {
-                    console.log('resource completed:', pathTree.path);
+                    console.log('resource completed:', pathTree.path ? pathTree.path : resource);
                     return newResource;
                 });
             });
@@ -272,8 +272,7 @@ module.exports = {
 
         var apiKeyRequired = (methodInfo['x-swagger-proxy'] == null);
 
-        console.log('apiKeyRequired:', apiKeyRequired);
-
+      
         var params = {
             authorizationType: 'NONE',
             httpMethod: method.toUpperCase(),
@@ -364,7 +363,6 @@ module.exports = {
                     intgPromise = intgPromise.then(function() {
                         return lambda.addPermission(addPermissionParams).then(function(result) {
 
-                            console.log('Permission added:', addPermissionParams);
                             return result;
                         });
                     });
@@ -444,7 +442,6 @@ module.exports = {
         });
     },
     testSwaggerEndpoint: function(restApiId, resourceId) {
-        console.log('testing result', restApiId, resourceId);
         var params = {
             httpMethod: 'GET',
             restApiId: restApiId,
@@ -496,11 +493,9 @@ module.exports = {
                 }
             }
 
-            console.log('getStage', getStageParams);
             return apigateway.getStage(getStageParams)
                 .then(function(stageInfo) {
 
-                    console.log('stageInfo', stageInfo);
                     var patchOperations = [{
                         op: 'replace',
                         path: '/deploymentId',
@@ -527,20 +522,18 @@ module.exports = {
                     }
 
 
-                    console.log('patchOperations', patchOperations);
                     return apigateway.updateStage({
                         restApiId: restApiId,
                         stageName: stage,
                         patchOperations: patchOperations
                     }).then(function(createStageResult) {
 
-                        console.log('updateStageResult', createStageResult);
                         return createStageResult;
                     });
                 })
                 .catch(function(err) {
                     // stage does not exist, create it
-                    console.log('getstage error', err);
+                    console.log('Create new stage');
                     return apigateway.createStage({
                         deploymentId: deploymentId,
                         restApiId: restApiId,
@@ -548,7 +541,6 @@ module.exports = {
                         variables: stageVariables
                     }).then(function(createStageResult) {
 
-                        console.log('createStageResult', createStageResult);
                         return createStageResult;
                     });
                 })
@@ -570,8 +562,7 @@ module.exports = {
             }
         };
 
-        console.log('deploy', params);
-
+       
         return apigateway.createDeployment(params).then(function(results) {
             me.cleanDeploys(restApiId, restApiId);
         }); // successful response
@@ -619,12 +610,10 @@ module.exports = {
 
                 var promises = []
 
-                console.log('setPermissions - Sequencial');
-
+              
                 for (var i = 0; i < data.items.length; i++) {
                     var resource = data.items[i];
                     for (var method in resource.resourceMethods) {
-                        console.log('resource1', resource.path, method, lambdaArn);
                         resourceMethods.push({
                             path: resource.path,
                             method: method
@@ -649,8 +638,7 @@ module.exports = {
 
                     return lambda.addPermission(addPermissionParams)
                         .then(function(result) {
-                            console.log('resource3', result);
-
+                            
                             return item + 1;
                         });
 
@@ -663,8 +651,7 @@ module.exports = {
     },
     listKeys: function() {
         return apigateway.getApiKeys({}).then(function(result) {
-            console.log('getApiKeys', JSON.stringify(result, null, '\t'));
-
+           
             return result;
         });
     },
