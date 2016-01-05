@@ -100,21 +100,41 @@ Well, all the endpoints get serviced by a single broker Lambda function. It then
 
 ## FAQ
 ### Can I run this locally?
-Sure, there is an app.js express app that will allow you to run the service locally our outside the AWS environment.
+Sure, there is an app.js express app that will allow you to run the service locally our outside the AWS environment. Just run `node app.js` from the command line.
 
 ### This looks a lot like the node swagger package. Why not use that?
-I tried to make the deployment to Lambda as lightweight as possible, so I didn't want the dependency to the full set of swagger tools.
+I tried to make the deployment to Lambda as lightweight as possible, so I didn't want the dependency to the full set of swagger tools. The size if the package is about 2.0 MB currently and with some optimizations it should be quite a bit lower.
 
 ### Man, that lamda/api gateway deployment code is ugly, do you really know what you are doing?
 Good question. I'm relatively new to nodejs, so I am still getting used to the async/promise based implementation. I will continue to refactor the code, but push requests are more than welcomed.
 
-It might be best to do the deployment by shelling out to the AWS cli instead of the SDK.
-
 ### I deployed, but now I am getting 403 errors when I use swagger-ui? What gives?
 Did you also include the API Key in the swagger ui?
 
-### What is the performance like?
-Running tests against the API gateway takes about 100-300ms once it gets a little warmed up. The lambda execution is about 1ms for a simple sample data endpoint.
+### I started with the bootstrap, and now I want to integrate with dynamoDB, but I am getting security errors. What can I do?
+You need to make sure the lambda execution role has access to any AWS resources it interacts with.
 
-### What is going on here! Hey, easy on the debug logging!
-Working on it.
+### What is the performance like?
+With 128 MB RAM allocated, running tests against the API gateway takes about 100-300ms once it gets a little warmed up. The lambda execution is about 1ms for a simple sample data endpoint, so most of the latency is connecting to API Gateway and the internal latency between the gateway and Lambda.
+
+### Can I run this inside a VPC?
+Not yet, the API Gateway will only surface public facing endpoints. AWS has committed to having lambda functions able to access VPC resources in early 2016.
+
+###How much is this going to cost me?
+The AWS costs for the (API gateway)[https://aws.amazon.com/api-gateway/pricing/] and (lambda)[https://aws.amazon.com/lambda/pricing/];
+
+For the us-east, the back of the napkin calculations say 1 billion calls in a month with a payload of 2K will cost:
+API Gateway: 1000*3.50 = $3,500 
+Transfer: 2K * 1,000,000,000 * $0.09 ~ $172
+Lambda: $0.02 * 1,000 = 
+
+### Can I use a custom URL?
+Coming soon.
+
+### How do I set up caching?
+Coming soon.
+
+## Can I use OAuth security?
+Currently no, but looking into it.
+
+
