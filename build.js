@@ -97,7 +97,7 @@ module.exports = {
 
 
                 if (conf.stages[stage].apiKey == null || conf.stages[stage].apiKey == '') {
-                    
+
                     var createApiKeyParams = {
                         description: 'API key for ' + conf.name + ' - ' + stage,
                         enabled: true,
@@ -115,7 +115,7 @@ module.exports = {
                         return apiUrl + '/' + stage + '/docs?apiKey=' + conf.stages[stage].apiKey;
                     });
                 } else {
-                   
+
                     return apiUrl + '/' + stage + '/docs?apiKey=' + conf.stages[stage].apiKey;;
                 }
             })
@@ -213,6 +213,15 @@ module.exports = {
         if (packageJson['swagger-lamba'].stages == null) {
             packageJson['swagger-lamba'].stages = {};
         }
+
+        if (packageJson['swagger-lamba'].stages.local == null) {
+            packageJson['swagger-lamba'].stages.local = {
+                apiKey: '1234567890'
+            };
+        }
+
+
+
         fs.writeFileSync('package.json', JSON.stringify(packageJson, null, '\t', 'utf8'));
 
         var promise = Q();
@@ -321,15 +330,19 @@ module.exports = {
 
             fs.writeFileSync('app.js', expressApp, 'utf8');
 
+            var indexApp = fs.readFileSync(__dirname + '/index.template.js', 'utf8');
+
+            fs.writeFileSync('index.js', indexApp, 'utf8');
+
             var resources = util.parseSwaggerFile('swagger.json').resources;
 
-           
+
             for (var resource in resources) {
 
                 try {
                     stats = fs.statSync('api/' + resource + '.js');
-                   } catch (e) {
-                    
+                } catch (e) {
+
 
 
                     /* try {

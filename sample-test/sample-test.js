@@ -7,13 +7,40 @@ var stage = '/build'
 var apiUrl = conf.restApiId + '.execute-api.us-east-1.amazonaws.com';
 var port = 443;
 
-if (process.env.NODE_ENV == 'local') {
+var app = require('../app.js');
+
+var apiKey;
+
+var env = 'remote';
+
+
+for (var index in process.argv) {
+    var str = process.argv[index];
+
+    console.log('argv', index, str);
+
+    if (str.indexOf("--local") == 0) {
+        env = 'local';
+    }
+}
+
+if (env == 'local') {
     https = require('http');
     apiUrl = 'localhost';
     port = 3000;
     stage = ''
+
+    apiKey = conf.stages.local.apiKey;
+
+    app(3000).listen(3000, function() {
+       
+    });
+
+
+
 } else {
     https = require('https');
+    apiKey = conf.stages.build.apiKey;
 }
 
 
@@ -31,7 +58,7 @@ describe("Test the build stage for the sample application", function() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accepts': 'application/json',
-                'x-api-key': conf.stages.build.apiKey
+                'x-api-key': apiKey
             }
         }
     });
@@ -298,7 +325,7 @@ describe("Test Swagger parameter types", function() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accepts': 'application/json',
-                'x-api-key': conf.stages.build.apiKey
+                'x-api-key': apiKey
             }
         }
     });
@@ -343,8 +370,8 @@ describe("Test Swagger parameter types", function() {
     }, {
         type: 'Date',
         param: 'pDate',
-        validValues: ['2015-12-31', '2016-01-31', '2016-02-29'],
-        invalidValues: ['2016-01-32', '2016-02-30', '2015-02-29', '2015-12-31T11:52']
+        validValues: ['2015-12-31', '2016-01-31', '2016-02-29', '2000-02-29'],
+        invalidValues: ['2016-01-32', '2016-02-30', '2015-02-29', '2015-12-31T11:52', '1900-02-29']
     }, {
         type: 'DateTime',
         param: 'pDateTime',
@@ -389,7 +416,7 @@ describe("Test Swagger parameter types", function() {
                     var headers = {
                         'Content-Type': 'application/json',
                         'Accepts': 'application/json',
-                        'x-api-key': conf.stages.build.apiKey
+                        'x-api-key': apiKey
                     };
 
                     if (testParam.type != null && testParam.type == 'header') {
@@ -432,7 +459,7 @@ describe("Testing body validations ", function() {
             headers: {
                 'Content-Type': 'application/json',
                 'Accepts': 'application/json',
-                'x-api-key': conf.stages.build.apiKey
+                'x-api-key': apiKey
             }
         };
 
@@ -477,7 +504,7 @@ describe("Testing body validations ", function() {
                 item[v] = test.data[v];
 
                 if (item[v] == null) {
-                	delete item[v];
+                    delete item[v];
                 }
             }
 

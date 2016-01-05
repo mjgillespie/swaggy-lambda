@@ -49,7 +49,35 @@ ZSchema.registerFormat("password", function(str) {
 ZSchema.registerFormat("date", function(str) {
     var regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
 
-    return regex.test(str) && stringValidator.isDate(str);
+    if (!regex.test(str)) {
+        return false;
+    }
+
+    var y = Number(str.substring(0, 4));
+    var m = Number(str.substring(5, 7));
+    var d = Number(str.substring(8, 10));
+
+    var f = 28;
+    if (((y % 400) == 0) || ((y % 4 == 0) && (y % 100 != 0))) {
+        f = 29;
+    }
+
+    var isValidMonth = (m <= 12);
+    var isValidDay = (d <= 31);
+
+    switch (m) {
+        case 2:
+            isValidDay = (d <= f);
+            break;
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            isValidDay = (d <= 30);
+            break;
+    }
+
+    return isValidMonth && isValidDay;
 });
 
 ZSchema.registerFormat("date-time", function(str) {
@@ -171,11 +199,11 @@ module.exports = {
 
 
             if (paramValue == null && parameter['default'] != null) {
-                
-                paramValue = parameter['default'];
-                 event.params[parameter.name] = paramValue;
 
-              
+                paramValue = parameter['default'];
+                event.params[parameter.name] = paramValue;
+
+
             }
 
             if (paramValue != null && (parameter.type == 'integer' || parameter.type == 'number')) {
@@ -200,7 +228,7 @@ module.exports = {
                 // primative eval    
 
                 if ((parameter.required == true || parameter.required == 'true') && paramValue == null) {
-                  event.validationErrors.push({
+                    event.validationErrors.push({
                         type: 'OBJECT_MISSING_REQUIRED_PROPERTY',
                         message: 'Required Parameter ' + parameter.name + ' is missing.',
                         fieldname: parameter.name

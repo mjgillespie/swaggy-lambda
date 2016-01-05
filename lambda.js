@@ -75,6 +75,7 @@ module.exports = {
             "aws-sdk": true,
             "express": true,
             "body-parser": true,
+            "ZSchema-browser-test.js": true,
             ".bin": true
         });
 
@@ -161,7 +162,7 @@ module.exports = {
 
 
                 if (stat.isDirectory()) {
-                    this.addFolderToZip(file, folderPath + '/' + file, newFolder, {});
+                    this.addFolderToZip(file, folderPath + '/' + file, newFolder, excludes);
                 } else {
                     var data = fs.readFileSync(folderPath + '/' + file, 'base64');
                     // c

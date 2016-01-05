@@ -50,6 +50,10 @@ program
         child_process.execFileSync('npm', ['install', 'express', '--save'], {
             timeout: 10000
         });
+
+        child_process.execFileSync('npm', ['install', 'handlebars', '--save'], {
+            timeout: 10000
+        });
         child_process.execFileSync('npm', ['install', 'z-schema', '--save'], {
             timeout: 10000
         });
