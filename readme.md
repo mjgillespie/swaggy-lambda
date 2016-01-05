@@ -8,7 +8,7 @@ Swaggy-lambda is a command line utility that will help you simply make a JSON RE
 * Optional: install mocha globally: `npm install -g mocha`
 
 ## Getting up and running
-* Download the source and run `npm link` to install a symbolic link to 'swaggy-lambda'. Once this stabilizes a little, I will publish the package so you can simple to the `npm install -g`.
+* Download the source and run `npm link` to install a symbolic link to 'swaggy-lambda'. Once this stabilizes a little, I will publish the package so you can simply do a global install with `npm install -g`.
 * Create a new blank project, run `npm init`
 * Bootstrap your project with some sample swagger files and nodejs api resources. `swaggy-lambda bootstrap`
 * This will create a sample project and do the following things:
@@ -83,6 +83,7 @@ node app.js
 * Lambda function is create, uploaded, and deployed.
 * REST function can be versioned and deployed to a different stage.
 * Stage variables can be passed in to accomodate differences in behavior per stage, such as a DB connection or table name.
+* Content-Range headers to support pagination of lists.
 
 
 
