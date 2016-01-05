@@ -124,9 +124,11 @@ Not yet, the API Gateway will only surface public facing endpoints. AWS has comm
 The AWS costs for the (API gateway)[https://aws.amazon.com/api-gateway/pricing/] and (lambda)[https://aws.amazon.com/lambda/pricing/];
 
 For the us-east, the back of the napkin calculations say 1 billion calls in a month with a payload of 2K will cost:
-API Gateway: 1000*3.50 = $3,500 
-Transfer: 2K * 1,000,000,000 * $0.09 ~ $172
-Lambda: $0.02 * 1,000 = 
+* API Gateway: 1000*3.50 = $3,500 
+* Transfer: 2K * 1,000,000,000 * $0.09 ~ $172
+* Lambda Per Call: $0.02 * 1,000 = $20
+* Lambda Execution Costs: 1,000,000,000 * 100ms * 0.125 GB = ~ $208
+* Total = $3,900  $0.00000039 / call.
 
 ### Can I use a custom URL?
 Coming soon.
