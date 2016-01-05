@@ -43,11 +43,11 @@ module.exports = {
         });
     },
     put: function(event, context) {
-     //   console.log('workflows.put', event);
+    //    console.log('workflows.put', event);
         context.succeed(event.body);
     },
     post: function(event, context) {
-     //   console.log('workflows.post', event);
+    //    console.log('workflows.post', event);
         context.succeed(event.body);
     },
     log: function(message) {

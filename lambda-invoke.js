@@ -171,11 +171,11 @@ module.exports = {
 
 
             if (paramValue == null && parameter['default'] != null) {
-
+                
                 paramValue = parameter['default'];
-                event.params[parameter.name] = paramValue;
+                 event.params[parameter.name] = paramValue;
 
-
+              
             }
 
             if (paramValue != null && (parameter.type == 'integer' || parameter.type == 'number')) {
@@ -200,7 +200,7 @@ module.exports = {
                 // primative eval    
 
                 if ((parameter.required == true || parameter.required == 'true') && paramValue == null) {
-                    event.validationErrors.push({
+                  event.validationErrors.push({
                         type: 'OBJECT_MISSING_REQUIRED_PROPERTY',
                         message: 'Required Parameter ' + parameter.name + ' is missing.',
                         fieldname: parameter.name
@@ -223,10 +223,6 @@ module.exports = {
                         message: errors[j].message,
                         fieldname: helper.decodeValidationError(errors[j], parameter.name)
                     });
-
-
-
-                    console.log('event.validationErrors', schemaPath, event.validationErrors);
 
                 }
             }

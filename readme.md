@@ -1,6 +1,10 @@
 ## What is swaggy-lambda
 Swaggy-lambda is a command line utility that will help you simply make a JSON REST based service using swagger to define the interface, nodejs to implement the service, and the AWS Gateway and AWS Lambda using a 'serverless' deployment.
 
+## Prerequisites
+* npm & node installed
+* An AWS account
+* Run the AWS CLI & get default credentials, region, etc configured.
 
 ## Getting up and running
 * Download the source and run `npm link` to install a symbolic link to 'swaggy-lambda'. Once this stabilizes a little, I will publish the package so you can simple to the `npm install -g`.
@@ -76,11 +80,11 @@ node app.js
 ### Really, how does it work?
 Well, all the endpoints get serviced by a single broker Lambda function. It then dynamically loads a module based on which resource is being requested. Each resource can have a number of methods associated with it, right now they are:
 * list: A GET that will return a list of resources. Success returns 200 HTTP code.
-  * get: A GET that returns a single resource. Success returns 200 HTTP code.
-  * post: A POST method that creates a new record. Success returns 201 HTTP code.
-  * put: A PUT method that updates an existing resource. Success returns 200 HTTP code.
-  * delete: A DELETE method that deletes an existing resource. Success returns 204 HTTP code.
-  * validate: A method that validates the request above & beyond the built in swagger validations.
+* get: A GET that returns a single resource. Success returns 200 HTTP code.
+* post: A POST method that creates a new record. Success returns 201 HTTP code.
+* put: A PUT method that updates an existing resource. Success returns 200 HTTP code.
+* delete: A DELETE method that deletes an existing resource. Success returns 204 HTTP code.
+* validate: A method that validates the request above & beyond the built in swagger validations.
 
 
 
@@ -94,5 +98,13 @@ I tried to make the deployment to Lambda as lightweight as possible, so I didn't
 ### Man, that lamda/api gateway deployment code is ugly, do you really know what you are doing?
 Good question. I'm relatively new to nodejs, so I am still getting used to the async/promise based implementation. I will continue to refactor the code, but push requests are more than welcomed.
 
+It might be best to do the deployment by shelling out to the AWS cli instead of the SDK.
+
 ### I deployed, but now I am getting 403 errors when I use swagger-ui? What gives?
 Did you also include the API Key in the swagger ui?
+
+### What is the performance like?
+Running tests against the API gateway takes about 100-300ms once it gets a little warmed up. The lambda execution is about 1ms for a simple sample data endpoint.
+
+### What is going on here! Hey, easy on the debug logging!
+Working on it.

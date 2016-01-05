@@ -5,6 +5,7 @@ var Zip = require('node-zip');
 var fs = require('fs');
 var util = require('./util.js');
 var Handlebars = require('handlebars');
+var uuid = require('node-uuid');
 
 awsQ(AWS);
 
@@ -12,12 +13,14 @@ AWS.config.region = 'us-east-1';
 
 AWS.config.apiVersions = {
     s3: '2006-03-01',
-    apigateway: '2015-07-09'
+    apigateway: '2015-07-09',
+    iam: '2010-05-08'
 
     // other service API versions
 };
 
 var lambda = new AWS.Lambda();
+var iam = new AWS.IAM();
 var s3 = new AWS.S3();
 
 Array.prototype.extend = function(other_array) {
@@ -98,8 +101,8 @@ module.exports = {
                 console.log('S3 ZIP Upload', result);
                 return result;
             }).catch(function(err) {
-                console.log('S3 ZIP Upload ERROR', err);
-                return result;
+                console.log('S3 ZIP Upload ERROR. bucket:' + bucket, err);
+                return err;
             });
 
         }
@@ -195,6 +198,9 @@ module.exports = {
             Publish: false,
             Timeout: 10
         };
+
+        console.log('lambda createFunction', params);
+
         return lambda.createFunction(params).promise();
     },
     updateFunction: function(arn, restApiName, label, bucket, role) {
@@ -208,7 +214,7 @@ module.exports = {
             S3Key: 'swaggy-lambda/' + restApiName + '/' + label + '/' + functionName + '.zip',
         };
 
-        return lambda.updateFunctionCode(params).then(function (result) {
+        return lambda.updateFunctionCode(params).then(function(result) {
             console.log('Lambda Updated', result);
             return result;
         }); // successful response
@@ -245,7 +251,7 @@ module.exports = {
         }
 
         var data = {
-            "stage":  stage,
+            "stage": stage,
             "apiUrl": api, // TOOD - make this the api URL.
             "scheme": 'https',
             "version": version
@@ -366,6 +372,56 @@ module.exports = {
             console.log("should be ok, no existing permissions")
         });
 
+
+    },
+    createRole: function(roleName) {
+        var assumeRolePolicyDocument = {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Action": "sts:AssumeRole",
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "lambda.amazonaws.com"
+                }
+            }]
+        };
+
+        var params = {
+            AssumeRolePolicyDocument: JSON.stringify(assumeRolePolicyDocument, null, '\t'),
+            RoleName: roleName
+        };
+        
+        return iam.createRole(params).then(function(roleResult) {
+            
+
+            // Attach a basic execution policy to the role  
+            policyDocument = {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Action": [
+                        "logs:CreateLogGroup",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ],
+                    "Resource": "arn:aws:logs:*:*:*",
+                    "Effect": "Allow"
+                }]
+            };
+
+            var rolePolicyParams = {
+                RoleName: roleName,
+                PolicyName: roleName + '-Basic-Execution-' + Math.floor(Math.random() * 100000000),
+                PolicyDocument: JSON.stringify(policyDocument, null, '\t')
+            };
+
+            return iam.putRolePolicy(rolePolicyParams).then(function(rolePolicyResult) {
+                console.log('Created Basic Lambda Execution Role: ', roleResult.Role.Arn);
+
+                return roleResult.Role.Arn;
+            }).catch(function(err) {
+                console.log('ERROR attaching policy', err);
+            });
+        });
 
     }
 }

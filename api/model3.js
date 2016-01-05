@@ -1,6 +1,6 @@
 module.exports = {
     list: function(event, context) {
-      //  console.log('model3.list', event);
+    //    console.log('model3.list', event);
         context.succeed([{
             "id": "abc123",
             "value": "ready"
@@ -10,14 +10,14 @@ module.exports = {
         }]);
     },
     get: function(event, context) {
-      //  console.log('model3.get', event);
+    //    console.log('model3.get', event);
         context.succeed({
             "id": event.params.id,
             "value": "ready"
         });
     },
     put: function(event, context) {
-     //   console.log('model3.put', event);
+    //    console.log('model3.put', event);
         context.succeed(event.body);
     },
     post: function(event, context) {

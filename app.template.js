@@ -3,7 +3,6 @@ var fs = require('fs');
 var app = express();
 var lambdaInvoke = require('./lambda-invoke.js');
 var util = require('./util.js');
-var Handlebars = require('handlebars');
 var bodyParser = require('body-parser')
 var swagger = util.parseSwaggerFile('swagger.json');
 

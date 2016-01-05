@@ -654,8 +654,8 @@ module.exports = {
                             return item + 1;
                         });
 
-                }).then(function() {
-                    return newResource;
+                }).then(function(result) {
+                    return result;
                 });
 
 
