@@ -6,6 +6,7 @@ var packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 var prompt = require('prompt');
 var wrench = require('wrench');
 var util = require('./util');
+var Handlebars = require('handlebars');
 
 var sampleSwagger = require('./sampleswagger.json');
 
