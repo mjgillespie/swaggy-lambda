@@ -4,7 +4,8 @@ Swaggy-lambda is a command line utility that will help you simply make a JSON RE
 ## Prerequisites
 * npm & node installed
 * An AWS account
-* Run the AWS CLI & get default credentials, region, etc configured.
+* Run the AWS CLI & get default credentials, region, etc configured. You don't need the CLI, but it uses the credentials from the CLI to execute the API calls.
+  * An AWS client id and secret key with access to create an IAM Role, API Gateway, and Lambda functions.
 * Optional: install mocha globally: `npm install -g mocha`
 
 ## Getting up and running
