@@ -2,6 +2,8 @@ var util = require('./util.js');
 var ZSchema = require("z-schema");
 var stringValidator = require('validator');
 
+var contextExtensions = {};
+
 var validator = new ZSchema({});
 
 var swagger = util.parseSwaggerFile('swagger.json');
@@ -172,6 +174,19 @@ module.exports = {
     invoke: function(event, context) {
         var me = this;
 
+        if (event.stage == null) {
+            event.stage = 'local';
+        } 
+
+        if (event.stageVariables == null) {
+            event.stageVariables = {};
+        }
+
+        if (contextExtensions[event.stage] == null) {
+            contextExtensions[event.stage] = require('./contextExtensions.js');
+            contextExtensions[event.stage].init(event.stage, event.stageVariables);
+        }
+
         var resourceHandler = helper.getResource(event.resource);
 
         event.validationErrors = [];
@@ -256,6 +271,8 @@ module.exports = {
             }
         }
 
+        context.extensions = contextExtensions[event.stage];
+
         var lamdaMethod = swagger.paths[event.path][event.method].method;
 
         context.oldDone = context.done;
@@ -269,6 +286,7 @@ module.exports = {
 
             context.oldDone(err, obj)
         }
+
 
         context.oldSucceed = context.succeed;
 

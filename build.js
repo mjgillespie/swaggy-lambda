@@ -89,6 +89,7 @@ module.exports = {
                     }
                 }
 
+
                 return apiGateway.deployStage(conf.restApiId, stage, version, conf.stages[stage].variables).then(function(result) {
                     return result;
                 })
@@ -184,7 +185,14 @@ module.exports = {
             })
             .then(function(result) {
 
-                return apiGateway.createDeployment(conf.restApiId, stage, version);
+                if (conf.stages[stage] == null) {
+                    conf.stages[stage] = {
+                        "variables": {}
+                    }
+                }
+
+             
+                return apiGateway.createDeployment(conf.restApiId, stage, version, conf.stages[stage].variables);
             })
             .then(function(result) {
                 return apiGateway.setPermissions(conf.restApiId, versionArn, '033374767009');
@@ -314,9 +322,12 @@ module.exports = {
                 fs.mkdirSync('api');
             }
 
+            wrench.rmdirSyncRecursive('swagger-ui', true);
+            fs.mkdirSync('swagger-ui');
+
             // copy the swagger-ui folder
             wrench.copyDirSyncRecursive(__dirname + '/swagger-ui', 'swagger-ui', {
-                forceDelete: true
+
             });
 
             var utilJs = fs.readFileSync(__dirname + '/util.js', 'utf8');
@@ -343,19 +354,6 @@ module.exports = {
                 try {
                     stats = fs.statSync('api/' + resource + '.js');
                 } catch (e) {
-
-
-
-                    /* try {
-
-
-                         var swaggerAccess = fs.accessSync('api/' + resource + '.js');
-                         console.log('Using existing resource file');
-                     } catch (err) {*/
-                    //            console.log('Create a new resource file from a template');
-
-
-
                     var resourceJs = fs.readFileSync(__dirname + '/resource-template.js', 'utf8');
 
                     var template = Handlebars.compile(resourceJs);
@@ -366,9 +364,17 @@ module.exports = {
                     };
                     var result = template(data);
                     fs.writeFileSync('api/' + resource + '.js', result, 'utf8');
-                    //}
                 }
             }
+
+
+            try {
+                stats = fs.statSync('contextExtensions.js');
+            } catch (e) {
+                var contextExtensions = fs.readFileSync(__dirname + '/contextExtensions.js', 'utf8');
+                fs.writeFileSync('contextExtensions.js', contextExtensions, 'utf8');
+            }
+
         });
     }
 

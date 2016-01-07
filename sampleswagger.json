@@ -52,7 +52,10 @@
                     "description": "test Param 5.",
                     "required": false,
                     "type": "string",
-                    "enum": ["Item1", "Item2"]
+                    "enum": [
+                        "Item1",
+                        "Item2"
+                    ]
                 }],
                 "tags": [
                     "Model1"
@@ -492,7 +495,10 @@
                     "description": "Display name of model."
                 }
             },
-            "required": ["id", "integercode"]
+            "required": [
+                "id",
+                "integercode"
+            ]
         },
         "Model2": {
             "description": "A description of the Model2 instance",
@@ -553,7 +559,11 @@
                     "$ref": "#/definitions/Model3"
                 }
             },
-            "required": ["type", "lastUpdated", "dateCreated"]
+            "required": [
+                "type",
+                "lastUpdated",
+                "dateCreated"
+            ]
         },
         "Model3": {
             "description": "A description of the Model3 instance",
@@ -570,17 +580,18 @@
                     "description": "Display state of the instance."
                 }
             },
-            "required": ["id", "value1"]
+            "required": [
+                "id",
+                "value1"
+            ]
         },
         "Model5": {
             "description": "A description of the Model5 instance",
-
             "allOf": [{
                 "$ref": "#/definitions/Model3"
             }, {
                 "type": "object",
                 "properties": {
-
                     "value2": {
                         "type": "integer",
                         "format": "int32",
@@ -593,7 +604,6 @@
                     }
                 }
             }]
-
         },
         "Model1s": {
             "type": "array",

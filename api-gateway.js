@@ -237,6 +237,8 @@ module.exports = {
 
         var intgParameterJson = {
             "resource": resource,
+            "stage": "$context.stage",
+            "stageVariables": "~STAGEVARIABLES~",
             "method": method,
             "params": {},
             "path": normalizedPath,
@@ -256,9 +258,9 @@ module.exports = {
 
             var paramName = "method.request." + location + "." + p.name;
 
-         //   if (p.in != 'body') {
-                methodParameters[paramName] = false //p.required;
-         //   }
+            //   if (p.in != 'body') {
+            methodParameters[paramName] = false //p.required;
+                //   }
 
             intgParameterJson.params[p.name] = "$input.params('" + p.name + "')";
             //  intgParameters = intgParameters + "\"" + p.name + "\": \"$input.params('" + p.name + "')\""
@@ -270,9 +272,15 @@ module.exports = {
 
         intgParameters = splitStr[0] + replaceString + splitStr[1];
 
+        splitStr = intgParameters.split('"~STAGEVARIABLES~"');
+
+        //replaceString = '{\n #foreach($key in $stageVariables)\n"$key":"$stageVariables[$key]", \n#end \n}\n ';
+        replaceString = '{\n#foreach($key in $stageVariables.keySet())\n\t"$key":"$stageVariables[$key]" #if($foreach.hasNext),#end\n#end\n}';
+        intgParameters = splitStr[0] + replaceString + splitStr[1];
+
         var apiKeyRequired = (methodInfo['x-swagger-proxy'] == null);
 
-      
+
         var params = {
             authorizationType: 'NONE',
             httpMethod: method.toUpperCase(),
@@ -487,15 +495,21 @@ module.exports = {
                 version: version
             }
 
+
+
             if (variables != null) {
                 for (var key in variables) {
                     stageVariables[key] = variables[key];
                 }
             }
 
+
+           
+
             return apigateway.getStage(getStageParams)
                 .then(function(stageInfo) {
 
+                 
                     var patchOperations = [{
                         op: 'replace',
                         path: '/deploymentId',
@@ -520,7 +534,6 @@ module.exports = {
                             path: '/variables/' + key
                         });
                     }
-
 
                     return apigateway.updateStage({
                         restApiId: restApiId,
@@ -548,21 +561,30 @@ module.exports = {
         })
     },
 
-    createDeployment: function(restApiId, stage, version) {
+    createDeployment: function(restApiId, stage, version, variables) {
         var me = this;
+
+        var stageVariables = {
+                stage: stage,
+                version: version
+            };
+
+        if (variables != null) {
+            for (var key in variables) {
+                stageVariables[key] = variables[key];
+            }
+        }    
+
 
         var params = {
             restApiId: restApiId,
             stageName: stage,
             description: version,
             stageDescription: stage,
-            variables: {
-                stage: stage,
-                version: version
-            }
+            variables: stageVariables
         };
 
-       
+
         return apigateway.createDeployment(params).then(function(results) {
             me.cleanDeploys(restApiId, restApiId);
         }); // successful response
@@ -610,7 +632,7 @@ module.exports = {
 
                 var promises = []
 
-              
+
                 for (var i = 0; i < data.items.length; i++) {
                     var resource = data.items[i];
                     for (var method in resource.resourceMethods) {
@@ -638,7 +660,7 @@ module.exports = {
 
                     return lambda.addPermission(addPermissionParams)
                         .then(function(result) {
-                            
+
                             return item + 1;
                         });
 
@@ -651,7 +673,7 @@ module.exports = {
     },
     listKeys: function() {
         return apigateway.getApiKeys({}).then(function(result) {
-           
+
             return result;
         });
     },

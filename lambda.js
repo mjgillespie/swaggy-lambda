@@ -55,6 +55,10 @@ module.exports = {
 
 
 
+        var contextExtensions = fs.readFileSync('./contextExtensions.js', 'utf8');
+
+        zip3.file('contextExtensions.js', contextExtensions);
+
 
         var apiFolder = zip3.folder('api');
 
@@ -88,7 +92,7 @@ module.exports = {
 
         var data = fs.readFileSync('./' + functionName + '.zip');
 
-        
+
         if (skipUpload) {
             return Q();
         } else {
@@ -198,7 +202,7 @@ module.exports = {
             Timeout: 10
         };
 
-        
+
         return lambda.createFunction(params).promise();
     },
     updateFunction: function(arn, restApiName, label, bucket, role) {
@@ -239,7 +243,7 @@ module.exports = {
         var swaggerDoc = fs.readFileSync('swagger.json', 'utf8');
         var template = Handlebars.compile(swaggerDoc);
 
-        
+
 
         var api = apiUrl;
         if (api.startsWith('https://')) {
@@ -263,7 +267,7 @@ module.exports = {
         }).promise();
     },
     deployIndexHtml: function(bucket, remotepath, apiUrl, version, stage) {
-        
+
         var indexHtml = fs.readFileSync(__dirname + '/swagger-ui/index.html', 'utf8');
 
         var template = Handlebars.compile(indexHtml);
@@ -275,7 +279,7 @@ module.exports = {
             "apiUrl": apiUrl
         };
 
-      
+
 
         var result = template(data);
 
@@ -340,7 +344,7 @@ module.exports = {
                 Name: label.replaceAll('.', '-'),
                 Description: 'Version Alias for ' + label
             };
-            
+
             return lambda.createAlias(aliasParams).then(function(aliasResult) {
                 return aliasResult;
             });
@@ -353,14 +357,14 @@ module.exports = {
         if (version != null) {
             arn = arn + ':' + version.replaceAll('.', '-');
         }
-      
+
         return lambda.getPolicy({
             FunctionName: arn
         }).then(function(getPolicyResult) {
-          
+
 
         }).catch(function(err) {
-          //  console.log("should be ok, no existing permissions", err);
+            //  console.log("should be ok, no existing permissions", err);
         });
 
 
@@ -372,7 +376,7 @@ module.exports = {
         return iam.getRole({
             RoleName: roleName
         }).then(function(roleInfo) {
-            
+
             return roleInfo.Role.Arn;
         }).catch(function(err) {
 
