@@ -17,7 +17,7 @@ String.prototype.replaceAll = function(find, replace) {
 };
 
 module.exports = {
-    run: function(conf, stage, version, skipUpload) {
+    run: function(conf, stage, version, skipUpload, customerId) {
         var me = this;
 
         return me.buildLambda(conf, stage, version, skipUpload)
@@ -29,7 +29,7 @@ module.exports = {
                 }
             })
             .then(function() {
-                return me.buildApiGateway(conf, stage, 'latest', skipUpload)
+                return me.buildApiGateway(conf, stage, 'latest', skipUpload, customerId)
             })
             .then(function() {
                 return me.deployStage(conf, stage, 'latest');
@@ -123,7 +123,7 @@ module.exports = {
             })
     },
 
-    buildApiGateway: function(conf, stage, version, skipUpload) {
+    buildApiGateway: function(conf, stage, version, skipUpload, customerId) {
         var versionArn = conf.arn;
 
         if (version != 'latest') {
@@ -158,7 +158,7 @@ module.exports = {
                             parameters: []
                         }
                     }
-                }, rootResource, versionArn, '033374767009').then(function(resource) {
+                }, rootResource, versionArn, customerId).then(function(resource) {
                     return rootResource;
                 })
 
@@ -175,13 +175,13 @@ module.exports = {
                             parameters: []
                         }
                     }
-                }, rootResource, versionArn, '033374767009', 'text/html').then(function(resource) {
+                }, rootResource, versionArn, customerId, 'text/html').then(function(resource) {
                     return rootResource;
                 })
 
             })
             .then(function(result) {
-                return apiGateway.createResources(conf.restApiId, versionArn, '033374767009');
+                return apiGateway.createResources(conf.restApiId, versionArn, customerId);
             })
             .then(function(result) {
 
@@ -195,7 +195,7 @@ module.exports = {
                 return apiGateway.createDeployment(conf.restApiId, stage, version, conf.stages[stage].variables);
             })
             .then(function(result) {
-                return apiGateway.setPermissions(conf.restApiId, versionArn, '033374767009');
+                return apiGateway.setPermissions(conf.restApiId, versionArn, customerId);
             })
             .then(function(result) {
                 return lambda.showPermissions(conf.arn, version);
@@ -254,6 +254,11 @@ module.exports = {
                         required: true,
                         default: process.env.BUCKET_NAME
                     },
+                    awsCustomerId: {
+                        message: 'AWS Customer Id',
+                        required: true,
+                        default: process.env.AWS_CUSTOMER_ID
+                    },
                     "lambda-role": {
                         message: 'AWS lambda role',
                         required: false
@@ -270,6 +275,7 @@ module.exports = {
                 packageJson['swagger-lamba'].name = result.apiName;
                 packageJson['swagger-lamba'].description = result.apiDescription;
                 packageJson['swagger-lamba'].bucket = result.bucket;
+                packageJson['swagger-lamba'].customerId = result.awsCustomerId;
 
 
                 var rolePromise;

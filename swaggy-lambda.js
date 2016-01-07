@@ -87,6 +87,7 @@ program
         var conf = packageJson['swagger-lamba'];
         console.log('create-version', version);
 
+      
         lambda.publishVersion(conf.arn, version).then(function(result) {
                 console.log('create alias COMPLETE', result);
                 return result;
@@ -97,7 +98,7 @@ program
             })
             .then(function(result) {
                 console.log('calling buildApiGateway');
-                return build.buildApiGateway(conf, 'createversion', version, false);
+                return build.buildApiGateway(conf, 'createversion', version, false, conf.customerId);
             })
             .then(function(result) {
                 //delete the createversion stage
@@ -134,7 +135,7 @@ program
         var conf = packageJson['swagger-lamba'];
         var skipUpload = false;
 
-        build.run(conf, 'build', 'latest', skipUpload)
+        build.run(conf, 'build', 'latest', skipUpload, conf.customerId)
             .done(function(result) {
                 fs.writeFileSync('package.json', JSON.stringify(packageJson, null, '\t', 'utf8'));
                 console.log('test url: ' + result)

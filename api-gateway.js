@@ -205,6 +205,8 @@ module.exports = {
 
                     var child = children[item];
 
+                    console.log('resource starting:', pathTree.path ? pathTree.path : resource);
+
                     return me.createResource(restApiId, child, pathTree.items[child], newResource, lambdaArn, awsAcctId)
                         .then(function(result) {
                             return item + 1;
@@ -504,12 +506,12 @@ module.exports = {
             }
 
 
-           
+
 
             return apigateway.getStage(getStageParams)
                 .then(function(stageInfo) {
 
-                 
+
                     var patchOperations = [{
                         op: 'replace',
                         path: '/deploymentId',
@@ -565,15 +567,15 @@ module.exports = {
         var me = this;
 
         var stageVariables = {
-                stage: stage,
-                version: version
-            };
+            stage: stage,
+            version: version
+        };
 
         if (variables != null) {
             for (var key in variables) {
                 stageVariables[key] = variables[key];
             }
-        }    
+        }
 
 
         var params = {

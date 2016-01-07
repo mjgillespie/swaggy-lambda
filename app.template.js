@@ -79,6 +79,8 @@ module.exports = function(port) {
 
                 var params = {
                     resource: info[thisMethod].resource,
+                    stageVariables: conf.variables,
+                    stage: 'local',
                     method: thisMethod,
                     params: params,
                     path: req.route.path,
