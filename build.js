@@ -329,11 +329,11 @@ module.exports = {
             }
 
             wrench.rmdirSyncRecursive('swagger-ui', true);
-            fs.mkdirSync('swagger-ui');
+          //  fs.mkdirSync('swagger-ui');
 
             // copy the swagger-ui folder
             wrench.copyDirSyncRecursive(__dirname + '/swagger-ui', 'swagger-ui', {
-
+                forceDelete: false
             });
 
             var utilJs = fs.readFileSync(__dirname + '/util.js', 'utf8');

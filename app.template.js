@@ -22,6 +22,8 @@ module.exports = function(port) {
 
     var conf = JSON.parse(fs.readFileSync('package.json', 'utf8'))['swagger-lamba'].stages[stage];
 
+
+
     if (conf == null) {
         conf = {
             apiKey: "1234567890"
@@ -77,9 +79,21 @@ module.exports = function(port) {
                     }
                 }
 
+                console.log('conf', JSON.stringify(conf));
+
+                var encodedVariables = {};
+                for (var key in conf.variables) {
+                    var bStr = new Buffer(JSON.stringify(conf.variables[key], null, '\t')).toString('base64');
+                    bStr.replace(/\+/g, "?")
+                    encodedVariables[key] = bStr;
+                }
+
+
+
+
                 var params = {
                     resource: info[thisMethod].resource,
-                    stageVariables: conf.variables,
+                    stageVariables: encodedVariables,
                     stage: 'local',
                     method: thisMethod,
                     params: params,

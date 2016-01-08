@@ -176,15 +176,31 @@ module.exports = {
 
         if (event.stage == null) {
             event.stage = 'local';
-        } 
+        }
 
         if (event.stageVariables == null) {
             event.stageVariables = {};
         }
 
+        var decodedVariables = {};
+        for (var key in event.stageVariables) {
+            if (stringValidator.isBase64(event.stageVariables[key])) {
+                var bStr = new Buffer(event.stageVariables[key], 'base64').toString('ascii');
+
+                bStr.replace(/\?/g, "+");
+
+                decodedVariables[key] = JSON.parse(bStr);
+            } else {
+                decodedVariables[key] = event.stageVariables[key];
+            }
+        }
+
+        event.stageVariables = decodedVariables;
+
+        // TODO: Make the init call async and return when the init is completed.
         if (contextExtensions[event.stage] == null) {
             contextExtensions[event.stage] = require('./contextExtensions.js');
-            contextExtensions[event.stage].init(event.stage, event.stageVariables);
+            contextExtensions[event.stage].init(event.stage, decodedVariables);
         }
 
         var resourceHandler = helper.getResource(event.resource);

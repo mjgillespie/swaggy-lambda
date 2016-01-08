@@ -176,6 +176,8 @@ module.exports = {
     createResource: function(restApiId, resource, pathTree, parent, lambdaArn, awsAcctId, contentType) {
         var me = this;
 
+
+
         return apigateway.createResource({
             restApiId: restApiId,
             parentId: parent.id,
@@ -183,29 +185,39 @@ module.exports = {
         }).then(function(newResource) {
             var childPromises = [];
 
-            for (var methodName in pathTree.methods) {
+            var methods = []
 
-                childPromises.push(me.createMethod(restApiId, methodName, pathTree.resource, newResource.id, pathTree.methods[methodName], contentType,
-                    pathTree.path, pathTree.normalizedPath, lambdaArn, awsAcctId));
+            for (var method in pathTree.methods) {
+                methods.push(method);
             }
 
-            var children = []
+            var promise = Q(0);
 
-            for (var child in pathTree.items) {
-                children.push(child);
-            }
+            var promise2 = me.promiseSequence(promise, methods, me, function(item) {
+
+                var methodName = methods[item];
+
+                return me.createMethod(restApiId, methodName, pathTree.resource, newResource.id, pathTree.methods[methodName], contentType,
+                    pathTree.path, pathTree.normalizedPath, lambdaArn, awsAcctId).then(function(result) {
+                    return item + 1;
+                });
+
+            });
+
+            return promise2.then(function(result) {
+                var children = []
+
+                for (var child in pathTree.items) {
+                    children.push(child);
+                }
 
 
-
-
-            return Q.all(childPromises).then(function(result) {
                 var promise = Q(0);
 
                 return me.promiseSequence(promise, children, me, function(item) {
 
                     var child = children[item];
 
-                    console.log('resource starting:', pathTree.path ? pathTree.path : resource);
 
                     return me.createResource(restApiId, child, pathTree.items[child], newResource, lambdaArn, awsAcctId)
                         .then(function(result) {
@@ -213,7 +225,6 @@ module.exports = {
                         });
 
                 }).then(function() {
-                    console.log('resource completed:', pathTree.path ? pathTree.path : resource);
                     return newResource;
                 });
             });
@@ -501,7 +512,12 @@ module.exports = {
 
             if (variables != null) {
                 for (var key in variables) {
-                    stageVariables[key] = variables[key];
+                    var bStr = new Buffer(JSON.stringify(variables[key], null, '\t')).toString('base64');
+                    bStr.replace(/\+/g, "?")
+
+                    console.log('bStr', bStr);
+
+                    stageVariables[key] = bStr;
                 }
             }
 
@@ -573,7 +589,12 @@ module.exports = {
 
         if (variables != null) {
             for (var key in variables) {
-                stageVariables[key] = variables[key];
+                var bStr = new Buffer(JSON.stringify(variables[key], null, '\t')).toString('base64');
+                bStr.replace(/\+/g, "?")
+
+
+                console.log('bStr', bStr);
+                stageVariables[key] = bStr;
             }
         }
 
