@@ -1,0 +1,3 @@
+# Non-git hidden files
+.*
+!.git*
