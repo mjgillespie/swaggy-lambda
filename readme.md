@@ -67,17 +67,26 @@ node app.js
 There is a mysql-bootstrap script that will generate a sample application that can connect to a MYSQL database running locally for development mode and RDS for the AWS Gateway. It has a single resource, Model1, with GET, POST, PUT, DELETE
 
 ### Prerequisites
-* A instance of mysql running locally or accessible locally. ** You can connect to RDS, but the latency will be high **
+* A instance of mysql running locally or accessible locally. ** You can connect to RDS, but the latency may be high **
 * An application  user/password configured for the local DB instance.
 * A new database configured for the application and grant full access to the DB for the application user. The bootstrap will build out a table if it doesn't exist.
 * An application  user/password configured for the RDS DB instance.
-* A new database configured for the application and grant full access to the DB for the application user. The bootstrap will build out a table if it doesn't exist.
+* A new database configured for the application and grant full access to the DB for the application user. The bootstrap will build out a table if it doesn't exist. 
+  * As of now the RDS instance must be public, or the lambda function won't be able to see it. AWS announced lambda functions will have access to VPN resources coming in the early in 2016, but they currently aren't generally available.
 * create a new folder
 * run `npm init`
 * run `swaggy-lambda mysql-bootstrap`
+  * It will ask for a local connection string and a build connection string
+  * Format is `mysql://user:pass@host/db`
+  * For the RDS connection, you can add the SSL info: `mysql://user:pwd@RDSUrl:3306/db?ssl=Amazon%20RDS`
 * to test locally, run `node index.js`
 * to build on API gateway, run  `swaggy-lambda build`
+* to run the functional tests:
+  * `mocha test/sample-test.js --local`
+  * `mocha test/sample-test.js`
 * Paste the test URL output by the build process to view the swagger-ui for this release.
+  * If you get errors, go to the AWS Lambda Control Panel, Monitoring Tab->View Logs in Cloudwatch to help diagnose the issue.
+
 
 ## What you get for 'free'
 * The main thing is that the tedious process of creating the API Gateway and Lambda functions is totally automated.
