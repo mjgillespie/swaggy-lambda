@@ -8,6 +8,10 @@ var wrench = require('wrench');
 var util = require('./util');
 var Handlebars = require('handlebars');
 
+Handlebars.registerHelper('toUpperCase', function(str) {
+  return str.toUpperCase();
+});
+
 var sampleSwagger = require('./sampleswagger.json');
 
 
@@ -191,7 +195,7 @@ module.exports = {
                     }
                 }
 
-             
+
                 return apiGateway.createDeployment(conf.restApiId, stage, version, conf.stages[stage].variables);
             })
             .then(function(result) {
@@ -205,7 +209,7 @@ module.exports = {
             });
 
     },
-    init: function() {
+    init: function(resourceTemplate) {
         var swaggerFile = './swagger.json';
 
         packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
@@ -329,7 +333,6 @@ module.exports = {
             }
 
             wrench.rmdirSyncRecursive('swagger-ui', true);
-          //  fs.mkdirSync('swagger-ui');
 
             // copy the swagger-ui folder
             wrench.copyDirSyncRecursive(__dirname + '/swagger-ui', 'swagger-ui', {
@@ -352,7 +355,10 @@ module.exports = {
 
             fs.writeFileSync('index.js', indexApp, 'utf8');
 
-            var resources = util.parseSwaggerFile('swagger.json').resources;
+            var swaggerDef = util.parseSwaggerFile('swagger.json');
+            var resources = swaggerDef.resources;
+
+
 
 
             for (var resource in resources) {
@@ -360,14 +366,29 @@ module.exports = {
                 try {
                     stats = fs.statSync('api/' + resource + '.js');
                 } catch (e) {
-                    var resourceJs = fs.readFileSync(__dirname + '/resource-template.js', 'utf8');
+
+
+
+                    var resourceJs = fs.readFileSync(__dirname + '/' + resourceTemplate + '.js', 'utf8');
 
                     var template = Handlebars.compile(resourceJs);
+
+                    var path = swaggerDef.paths
 
                     var data = {
                         "resourceName": resource,
                         "methods": resources[resource].methods
                     };
+
+                    for (var item in data.methods) {
+                        var p = data.methods[item];
+                        var m = (item == 'list') ? 'get' : item;
+
+                        data.methods[item] = path[p][m]
+                    }
+
+                    console.log('data:', data);
+
                     var result = template(data);
                     fs.writeFileSync('api/' + resource + '.js', result, 'utf8');
                 }

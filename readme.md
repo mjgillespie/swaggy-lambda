@@ -63,6 +63,22 @@ There is an app.js created when you run swaggy-lambda.js that creates an express
 node app.js
 ```
 
+## Connecting to a Database
+There is a mysql-bootstrap script that will generate a sample application that can connect to a MYSQL database running locally for development mode and RDS for the AWS Gateway. It has a single resource, Model1, with GET, POST, PUT, DELETE
+
+### Prerequisites
+* A instance of mysql running locally or accessible locally. ** You can connect to RDS, but the latency will be high **
+* An application  user/password configured for the local DB instance.
+* A new database configured for the application and grant full access to the DB for the application user. The bootstrap will build out a table if it doesn't exist.
+* An application  user/password configured for the RDS DB instance.
+* A new database configured for the application and grant full access to the DB for the application user. The bootstrap will build out a table if it doesn't exist.
+* create a new folder
+* run `npm init`
+* run `swaggy-lambda mysql-bootstrap`
+* to test locally, run `node index.js`
+* to build on API gateway, run  `swaggy-lambda build`
+* Paste the test URL output by the build process to view the swagger-ui for this release.
+
 ## What you get for 'free'
 * The main thing is that the tedious process of creating the API Gateway and Lambda functions is totally automated.
   * Resources are created for each resource in the swagger.json

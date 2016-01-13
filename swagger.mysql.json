@@ -1,0 +1,281 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Lambda",
+        "description": "A serverless rest engine that rocks",
+        "version": "{{version}}"
+    },
+    "host": "{{apiUrl}}",
+    "schemes": [
+        "{{scheme}}"
+    ],
+    "basePath": "/{{stage}}",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/model1": {
+            "get": {
+                "summary": "Get a list of available items",
+                "description": "The Model1 endpoint returns all the Model1s in the system.\n",
+                "parameters": [{
+                    "name": "param1",
+                    "in": "query",
+                    "description": "test Param 1.",
+                    "required": false,
+                    "type": "string"
+                }, {
+                    "name": "param2",
+                    "in": "query",
+                    "description": "test Param 2.",
+                    "required": false,
+                    "type": "integer",
+                    "maximum": 100
+                }, {
+                    "name": "param3",
+                    "in": "query",
+                    "description": "test Param 3.",
+                    "required": false,
+                    "type": "number",
+                    "minimum": 100
+                }, {
+                    "name": "param4",
+                    "in": "query",
+                    "description": "test Param 4.",
+                    "required": false,
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 8
+                }, {
+                    "name": "param5",
+                    "in": "query",
+                    "description": "test Param 5.",
+                    "required": false,
+                    "type": "string",
+                    "enum": [
+                        "Item1",
+                        "Item2"
+                    ]
+                }],
+                "tags": [
+                    "Model1"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of Model1s",
+                        "schema": {
+                            "$ref": "#/definitions/Model1s"
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Update an existing Model1",
+                "description": "Update an existing Model1",
+                "parameters": [{
+                    "name": "body",
+                    "in": "body",
+                    "description": "The model1",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Model1Update"
+                    }
+                }],
+                "tags": [
+                    "Model1"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Model1 Response",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    },
+                    "default": {
+                        "description": "unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/model1/{modelId}": {
+            "get": {
+                "summary": "Get a specific instance of Model1",
+                "description": "The Model1 endpoint returns a specific instance a Model1 configured in the system.\n",
+                "parameters": [{
+                    "name": "modelId",
+                    "in": "path",
+                    "description": "The id for this resource.",
+                    "required": true,
+                    "maxLength": 10,
+                    "type": "string"
+                }],
+                "tags": [
+                    "Model1"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A Model1",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific instance of Model1",
+                "description": "The Model1 endpoint returns a specific instance a Model1 configured in the system.\n",
+                "parameters": [{
+                    "name": "modelId",
+                    "in": "path",
+                    "description": "The id for this resource.",
+                    "required": true,
+                    "maxLength": 10,
+                    "type": "string"
+                }],
+                "tags": [
+                    "Model1"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Model1 Deleted"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update an existing Model1",
+                "description": "Update an existing Model1",
+                "parameters": [{
+                    "name": "body",
+                    "in": "body",
+                    "description": "The model1",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Model1Update"
+                    }
+                }, {
+                    "name": "modelId",
+                    "in": "path",
+                    "description": "The id of the resource",
+                    "required": true,
+                    "type": "string",
+                    "maxLength": 10
+                }],
+                "tags": [
+                    "Model1"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Model1 Response",
+                        "schema": {
+                            "$ref": "#/definitions/Model1"
+                        }
+                    },
+                    "default": {
+                        "description": "unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Model1": {
+            "description": "A sample model",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Unique identifier representing a specific resource"
+                },
+                "integercode": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A short human readable code for the model"
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "Display name of model."
+                }
+            },
+            "required": [
+                "id",
+                "integercode"
+            ]
+        },
+         "Model1Update": {
+            "description": "A sample model for updates",
+            "type": "object",
+            "properties": {
+                "integercode": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A short human readable code for the model"
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "Display name of model."
+                }
+            },
+            "required": [
+                "integercode"
+            ]
+        },
+        "Model1s": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Model1"
+            }
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

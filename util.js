@@ -4,8 +4,11 @@ var fs = require('fs');
 module.exports = {
 
     parseSwaggerFile: function(swaggerFile) {
+        var me = this;
+
         try {
             var swagger = JSON.parse(fs.readFileSync(swaggerFile, 'utf8'));
+
 
             // does an 'api' folder exist? If not, make one.
 
@@ -107,6 +110,16 @@ module.exports = {
                             resourcePaths[expressPath][method].parameterMap[paramItem.name.toLowerCase()] = paramItem;
                         }
 
+                        var response = {};
+
+
+                        if (method.toLowerCase() == 'get' || method.toLowerCase() == 'put') {
+                            response = swagger.paths[path][method]['responses']['200'];
+                        } else if (method.toLowerCase() == 'post') {
+                            response = swagger.paths[path][method]['responses']['201'];
+                        }
+
+
                     }
                 }
             }
@@ -115,9 +128,58 @@ module.exports = {
                 paths: resourcePaths,
                 definitions: swagger.definitions
             };
+        } catch (ex) {
+            console.log("exception:", ex);
         }
-        catch (ex) {
-            
+    },
+    dereference: function(item, tree, callstack) {
+        var me = this;
+
+
+        for (var i in item) {
+            console.log('i', i, item);
+            if (i == '$ref') {
+                console.log('i', i, item[i]);
+                /* 
+                                for (var j = 0; j < callstack.length; j++) {
+                                    if (item[i] == callstack[j]) {
+                                        return;
+                                    }
+                                }
+
+                                var ref = item[i];
+
+                                if (ref[0] == '#') {
+                                    ref = ref.substring(1);
+                                }
+                                if (ref[0] == '/') {
+                                    ref = ref.substring(1);
+                                }
+
+
+                                var path = ref.split('/');
+                                var currentItem = tree;
+
+                                for (var j = 0; j < path.length; j++) {
+                                    currentItem = currentItem[path[j]];
+                                }
+
+                                console.log('currentItem', JSON.string(currentItem, null, '\t'));
+
+                                callstack = JSON.parse(JSON.stringify(callstack));
+                                callstack.push(ref)
+
+
+                                for (var child in currentItem) {
+                                    item[child] = currentItem[child]
+                                }
+
+                                delete item['$ref'];
+                */
+            } else {
+                me.dereference(item[i], tree, callstack);
+            }
         }
+
     }
 }

@@ -79,8 +79,7 @@ module.exports = function(port) {
                     }
                 }
 
-                console.log('conf', JSON.stringify(conf));
-
+               
                 var encodedVariables = {};
                 for (var key in conf.variables) {
                     var bStr = new Buffer(JSON.stringify(conf.variables[key], null, '\t')).toString('base64');
